@@ -1,0 +1,245 @@
+---
+title: FamilyTree
+description: The main class for building and querying a family tree from a text file
+---
+
+## Class overview
+
+**Package:** `trees`
+
+**Declaration:** `public class FamilyTree`
+
+Builds an in-memory tree from a structured text file and exposes queries against it. The tree is modelled internally with a private `root` field of type `TreeNode` and a private static inner class `TreeNode` that holds each node's name, parent reference, and children list.
+
+---
+
+## Constructor
+
+### `FamilyTree()`
+
+```java
+public FamilyTree() throws IOException, TreeException
+```
+
+Opens a Swing `JFileChooser` GUI dialog filtered to `.txt` files, reads the selected file line by line, and builds the in-memory tree.
+
+**Dialog and file resolution**
+
+- Looks for a `data/` directory first; falls back to the current working directory if `data/` does not exist.
+- The file chooser is filtered to files with the `.txt` extension.
+- Calls `System.exit(1)` if the user cancels or closes the dialog without selecting a file.
+
+**File parsing**
+
+- Each line is passed to the private `addLine` method.
+- Lines must follow the format `parent:child1,child2,...`.
+- The first line in the file establishes the root node.
+- Subsequent lines must reference a parent name that already exists in the tree.
+
+<ParamField path="throws" type="IOException">
+  Thrown if the selected file cannot be opened or read.
+</ParamField>
+
+<ParamField path="throws" type="TreeException">
+  Thrown if any line is malformed (no colon separator) or if a parent name on a non-root line is not found in the existing tree.
+</ParamField>
+
+---
+
+## Methods
+
+### `getMostRecentCommonAncestor(String name1, String name2)`
+
+```java
+TreeNode getMostRecentCommonAncestor(String name1, String name2) throws TreeException
+```
+
+<Info>
+  This method has package-private visibility — it is accessible within the `trees` package but not from outside it.
+</Info>
+
+Finds and returns the deepest node that is an ancestor of both named persons.
+
+**Algorithm**
+
+1. Locates the `TreeNode` for `name1` via DFS from the root.
+2. Locates the `TreeNode` for `name2` via DFS from the root.
+3. Collects the ancestor list for each node (ordered from immediate parent up to the root).
+4. Iterates through the ancestor list of `name1` and returns the first node that also appears in the ancestor list of `name2`.
+
+<ParamField path="query.name1" type="String" required>
+  Name of the first person to look up in the tree.
+</ParamField>
+
+<ParamField path="query.name2" type="String" required>
+  Name of the second person to look up in the tree.
+</ParamField>
+
+<ResponseField name="return" type="TreeNode">
+  The deepest `TreeNode` that is a common ancestor of both persons.
+</ResponseField>
+
+<Warning>
+  Returns `null` if no common ancestor exists — for example, when the two nodes are on completely separate branches with no shared root path. Always null-check the return value before calling methods on it.
+</Warning>
+
+<ParamField path="throws" type="TreeException">
+  Thrown if `name1` or `name2` is not found anywhere in the tree.
+</ParamField>
+
+---
+
+### `toString()`
+
+```java
+public String toString()
+```
+
+Returns a human-readable, indented string representation of the entire tree.
+
+<ResponseField name="return" type="String">
+  A string starting with `"Family Tree:\n\n"` followed by the root node's indented subtree. Each level of depth is indented by two additional spaces.
+</ResponseField>
+
+**Example output**
+
+Given a file containing the Tolkien tree:
+
+```text
+Family Tree:
+
+Thror
+  Thrain
+    Thorin
+      Fili
+      Kili
+    Frerin
+    Dis
+      Bilbo
+        Frodo
+```
+
+---
+
+## `main` method
+
+```java
+public static void main(String[] args)
+```
+
+Entry point for the application. Constructs a `FamilyTree` (which opens the file chooser dialog), prints the full tree, then finds and prints the most recent common ancestor of `"Bilbo"` and `"Frodo"`.
+
+**Example console output** (using the Tolkien tree):
+
+```text
+Tree:
+Family Tree:
+
+Thror
+  Thrain
+    Thorin
+      Fili
+      Kili
+    Frerin
+    Dis
+      Bilbo
+        Frodo
+
+**************
+
+Most recent common ancestor of Bilbo and Frodo is Dis
+```
+
+Errors are caught and printed to standard output:
+
+```text
+IO trouble: <message>
+Input file trouble: <message>
+```
+
+---
+
+## Inner class: `TreeNode` (private static)
+
+`TreeNode` is a private static inner class defined inside `FamilyTree`. It is not accessible from outside `FamilyTree`.
+
+### Fields
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `String` | The person's name stored in this node. |
+| `parent` | `TreeNode` | Reference to the parent node; `null` for the root. |
+| `children` | `ArrayList<TreeNode>` | Ordered list of direct children. |
+
+### `getName()`
+
+```java
+String getName()
+```
+
+<ResponseField name="return" type="String">
+  The name stored in this node.
+</ResponseField>
+
+### `addChild(TreeNode childNode)`
+
+```java
+void addChild(TreeNode childNode)
+```
+
+Appends `childNode` to this node's `children` list and sets `childNode.parent` to `this`.
+
+<ParamField path="query.childNode" type="TreeNode" required>
+  The node to attach as a direct child of this node.
+</ParamField>
+
+### `getNodeWithName(String targetName)`
+
+```java
+TreeNode getNodeWithName(String targetName)
+```
+
+Performs a depth-first search starting from this node, returning the first node whose name equals `targetName`.
+
+<ParamField path="query.targetName" type="String" required>
+  The name to search for.
+</ParamField>
+
+<ResponseField name="return" type="TreeNode">
+  The first matching `TreeNode`, or `null` if no node with that name is found in the subtree.
+</ResponseField>
+
+### `collectAncestorsToList()`
+
+```java
+ArrayList<TreeNode> collectAncestorsToList()
+```
+
+Walks the parent chain from this node up to (but not including) the root, collecting each ancestor in order.
+
+<ResponseField name="return" type="ArrayList<TreeNode>">
+  An ordered list starting with the immediate parent and ending with the root node itself. Returns an empty list if this node is the root.
+</ResponseField>
+
+---
+
+## Usage example
+
+Compile both source files and run the application:
+
+```bash
+javac -d bin src/trees/FamilyTree.java src/trees/TreeException.java
+java -cp bin trees.FamilyTree
+```
+
+A file chooser window will appear. Select a `.txt` file formatted as:
+
+```text
+Thror:Thrain
+Thrain:Thorin,Frerin,Dis
+Thorin:Fili,Kili
+Dis:Bilbo
+Bilbo:Frodo
+```
+
+The program prints the full tree and the most recent common ancestor of `"Bilbo"` and `"Frodo"`. See the [input file format](/guides/data-format) guide for the full syntax.

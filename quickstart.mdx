@@ -1,80 +1,117 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Compile and run the Family Tree program in minutes"
 ---
 
-## Get started in three steps
+<Warning>
+  The file chooser is a GUI dialog — running in a headless environment (no display) will fail with a `HeadlessException`. Make sure you have a graphical display available before launching the program.
+</Warning>
 
-Get your documentation site running locally and make your first customization.
+<Steps>
 
-### Step 1: Set up your local environment
+<Step title="Prerequisites">
+  Java JDK 8 or later is required. Swing is bundled with the JDK — no external libraries or build tools are needed.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+  Verify your Java version:
 
-### Step 2: Deploy your changes
+  ```bash
+  java -version
+  ```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  You should see output like `openjdk version "11.0.x"` or later.
+</Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Step title="Clone the repository">
+  ```bash
+  git clone https://github.com/ehcaw/lab12.git
+  cd lab12
+  ```
+</Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+<Step title="Compile the source">
+  Create a `bin/` output directory and compile both source files together:
 
-### Step 3: Go live
+  ```bash
+  mkdir -p bin
+  javac -d bin src/trees/FamilyTree.java src/trees/TreeException.java
+  ```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  If compilation succeeds, `bin/trees/FamilyTree.class` and `bin/trees/TreeException.class` will be created.
+</Step>
 
-## Next steps
+<Step title="Create a sample input file">
+  Create a `data/` directory and add a sample tree file:
 
-Now that you have your docs running, explore these key features:
+  ```bash
+  mkdir data
+  ```
 
-<CardGroup cols={2}>
+  Create `data/tolkien.txt` with the following content:
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+  ```text tolkien.txt
+  Thror:Thrain
+  Thrain:Thorin,Frerin,Dis
+  Thorin:Fili,Kili
+  Dis:Bilbo
+  Bilbo:Frodo
+  ```
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+  Each line follows the format `parent:child1,child2,...`. The first line in the file establishes the root of the tree. Every subsequent parent must already exist as a child from an earlier line.
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+  <Tip>
+    The `data/` directory is checked first by convention. If it does not exist, the file chooser dialog opens in the current working directory instead.
+  </Tip>
+</Step>
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+<Step title="Run the program">
+  ```bash
+  java -cp bin trees.FamilyTree
+  ```
 
-</CardGroup>
+  A Swing file chooser dialog opens. Navigate to and select `tolkien.txt`. After you confirm, the program prints the full tree followed by the most recent common ancestor of `Bilbo` and `Frodo`.
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+  <CodeGroup>
+
+  ```text expected output
+  Tree:
+  Family Tree:
+
+  Thror
+    Thrain
+      Thorin
+        Fili
+        Kili
+      Frerin
+      Dis
+        Bilbo
+          Frodo
+
+
+  **************
+
+  Most recent common ancestor of Bilbo and Frodo is Dis
+  ```
+
+  </CodeGroup>
+
+  The MRCA result shows `Dis` because `Dis` is the parent of `Bilbo`, who is the parent of `Frodo` — making `Dis` the deepest ancestor shared by both.
+</Step>
+
+<Step title="Try your own tree">
+  Create any `.txt` file following the same line format:
+
+  ```text
+  parent:child1,child2,...
+  ```
+
+  Rules to keep in mind:
+
+  - The very first line defines the root node.
+  - Every parent named on subsequent lines must have already appeared as a child on an earlier line.
+  - A parent can have any number of comma-separated children on a single line.
+  - Names are case-sensitive: `Bilbo` and `bilbo` are treated as different individuals.
+
+  Run the program again with `java -cp bin trees.FamilyTree` and select your new file when the dialog opens.
+</Step>
+
+</Steps>

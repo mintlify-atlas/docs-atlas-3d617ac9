@@ -1,0 +1,68 @@
+---
+title: TreeException
+description: Custom exception class for family tree parsing and query errors
+---
+
+## Class overview
+
+**Package:** `trees`
+
+**Extends:** `java.lang.Exception`
+
+`TreeException` is a checked exception that signals two categories of error:
+
+- **Malformed input** — a line in the input file does not conform to the expected format.
+- **Invalid name lookups** — a name passed to a query method does not exist in the tree.
+
+Because it extends `Exception` (not `RuntimeException`), callers must either catch it or declare it in their `throws` clause.
+
+---
+
+## Constructor
+
+### `TreeException(String s)`
+
+```java
+public TreeException(String s)
+```
+
+Creates a new `TreeException` with the provided message.
+
+<ParamField path="query.s" type="String" required>
+  The error message string, passed directly to `super(s)`. Retrieve it later with the inherited `getMessage()` method.
+</ParamField>
+
+---
+
+## When it is thrown
+
+The table below lists every location in `FamilyTree` where `TreeException` is thrown, along with the exact message string from the source code.
+
+| Thrown by | Exact message | Cause |
+|---|---|---|
+| `FamilyTree.addLine` | `"Improper formatting"` | A line in the input file contains no colon (`:`), so the parent/children split cannot be performed. |
+| `FamilyTree.addLine` | `"error"` | The parent name extracted from a non-root line is not found anywhere in the existing tree. |
+| `FamilyTree.getMostRecentCommonAncestor` | `"Name1 doesn't exist"` | The first argument (`name1`) is not found in the tree. |
+| `FamilyTree.getMostRecentCommonAncestor` | `"Name 2 doesn't exist"` | The second argument (`name2`) is not found in the tree. |
+
+---
+
+## Catching `TreeException`
+
+The following pattern mirrors the `main` method in `FamilyTree`:
+
+```java
+try {
+    FamilyTree tree = new FamilyTree();
+    TreeNode ancestor = tree.getMostRecentCommonAncestor("Bilbo", "Frodo");
+    System.out.println("Most recent common ancestor: " + ancestor.getName());
+} catch (IOException x) {
+    System.out.println("IO trouble: " + x.getMessage());
+} catch (TreeException x) {
+    System.out.println("Input file trouble: " + x.getMessage());
+}
+```
+
+<Note>
+  Always catch `IOException` and `TreeException` in separate catch blocks when constructing a `FamilyTree`. The constructor can throw either — `IOException` for unreadable files and `TreeException` for malformed content — and each warrants different handling.
+</Note>

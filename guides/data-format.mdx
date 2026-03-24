@@ -1,0 +1,91 @@
+---
+title: "Input file format"
+description: "How to write family tree definition files for the parser"
+---
+
+The parser reads a plain-text file where each line defines one parent-to-children relationship. Lines are processed in order from top to bottom.
+
+## Line format
+
+Each line must follow this pattern:
+
+```text
+parent:child1,child2,child3
+```
+
+The parser uses `line.indexOf(":")` to split each line. Everything to the left of the colon is the parent name; everything to the right is a comma-separated list of children.
+
+```java
+int colonIndex = line.indexOf(":");
+String parentName  = line.substring(0, colonIndex);
+String childrenString = line.substring(colonIndex + 1);
+String[] childNames = childrenString.split(",");
+```
+
+## Rules
+
+- Every line must contain exactly one colon.
+- The parent on the **first line** becomes the root of the tree.
+- Every subsequent line's parent must already exist somewhere in the tree before that line is processed.
+- Children are separated by commas. Spaces are allowed in names but are treated as part of the name.
+- Names can be any string that does not contain a colon (`:`) or a comma (`,`).
+
+<Note>
+  Lines must be ordered top-down: a parent must appear (as a child) before any line that uses it as a parent, except for the very first line which establishes the root.
+</Note>
+
+## Example
+
+<Tabs>
+  <Tab title="Valid example">
+    The following file defines a Tolkien-style dwarf family tree:
+
+    ```text
+    Thror:Thrain
+    Thrain:Thorin,Frerin,Dis
+    Thorin:Fili,Kili
+    Dis:Bilbo
+    Bilbo:Frodo
+    ```
+
+    `Thror` is added first, so it becomes the root. Each subsequent parent (`Thrain`, `Thorin`, `Dis`, `Bilbo`) already exists in the tree before their line is reached.
+  </Tab>
+  <Tab title="Invalid examples">
+    **Missing colon:**
+
+    ```text
+    ThrorThrain
+    ```
+
+    <Warning>
+      If a line contains no colon, `line.indexOf(":")` returns `-1` and the parser throws `TreeException("Improper formatting")`.
+    </Warning>
+
+    **Parent not found in tree:**
+
+    ```text
+    Thror:Thrain
+    Gandalf:Bilbo
+    ```
+
+    <Warning>
+      If the parent name on a line does not match any node already in the tree, the parser throws `TreeException("error")`.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Resulting tree structure
+
+After parsing the valid example above, `toString()` produces the following indented output (2 spaces per depth level):
+
+```text
+Thror
+  Thrain
+    Thorin
+      Fili
+      Kili
+    Frerin
+    Dis
+      Bilbo
+        Frodo
+```

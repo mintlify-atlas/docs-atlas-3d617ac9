@@ -1,0 +1,53 @@
+{
+  "projectType": "general",
+  "projectName": "Lab 12: Family Tree",
+  "projectDescription": "A Java implementation of a family tree data structure that supports parsing tree definitions from files, traversing ancestor chains, and finding the most recent common ancestor between two nodes.",
+  "theme": "mint",
+  "primaryColor": "#2D7D46",
+  "lightColor": "#4CAF72",
+  "darkColor": "#1B5E32",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Guides",
+            "pages": ["guides/data-format", "guides/tree-operations", "guides/ancestor-lookup"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Classes",
+            "pages": ["api/family-tree", "api/tree-exception"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Parse family tree definitions from structured text files",
+    "Build a tree with parent-child relationships using an inner TreeNode class",
+    "Traverse ancestor chains from any node up to the root",
+    "Find the most recent common ancestor (MRCA) of two named individuals",
+    "GUI file chooser for selecting input files via Swing",
+    "Custom TreeException for input validation and error handling"
+  ],
+  "publicApiSurface": [
+    "FamilyTree() — constructor that opens a file chooser and parses the selected tree file",
+    "getMostRecentCommonAncestor(String name1, String name2) — returns the deepest common ancestor node",
+    "toString() — returns a human-readable indented representation of the tree",
+    "TreeNode.getName() — returns the name stored in a tree node",
+    "TreeNode.addChild(TreeNode childNode) — adds a child and sets its parent pointer",
+    "TreeNode.getNodeWithName(String targetName) — recursively searches the subtree for a named node",
+    "TreeNode.collectAncestorsToList() — returns an ordered list of ancestors from parent to root",
+    "TreeException(String s) — custom exception for malformed input or missing names"
+  ]
+}

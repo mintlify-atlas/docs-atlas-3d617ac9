@@ -1,97 +1,65 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Lab 12: Family Tree"
+description: "A Java implementation of a family tree data structure with ancestor traversal and most recent common ancestor lookup."
 ---
 
-## Setting up
+## Overview
 
-Get your documentation site up and running in minutes.
+Lab 12 implements a **family tree** data structure in Java. It reads a structured text file describing parent-child relationships, builds an in-memory tree, and provides methods to traverse ancestry chains and find the **most recent common ancestor (MRCA)** between any two individuals.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Compile and run the family tree in minutes
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Data Format" icon="file-lines" href="/guides/data-format">
+    Learn how to write tree input files
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Tree Operations" icon="sitemap" href="/guides/tree-operations">
+    Understand how nodes are built and linked
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Ancestor Lookup" icon="magnifying-glass" href="/guides/ancestor-lookup">
+    Find the most recent common ancestor of two people
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Key features
 
-Everything you need to create world-class documentation.
+<CardGroup cols={2}>
+  <Card title="File-based input" icon="folder-open">
+    Load any family tree from a plain `.txt` file using a Swing file chooser dialog
+  </Card>
+  <Card title="Recursive node search" icon="diagram-project">
+    Depth-first search locates any named node anywhere in the tree
+  </Card>
+  <Card title="Ancestor chain traversal" icon="arrow-up">
+    Walk from any leaf node up to the root, collecting every ancestor in order
+  </Card>
+  <Card title="MRCA algorithm" icon="code-branch">
+    Efficiently finds the deepest ancestor shared by two individuals
+  </Card>
+</CardGroup>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## How it works
 
-## Need inspiration?
+The tree is built from a plain text file where each line describes one parent and its immediate children:
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+```text family-tree.txt
+GrandparentA:ParentA,ParentB
+ParentA:Child1,Child2
+ParentB:Child3
+```
+
+The `FamilyTree` class parses this file line by line, creates `TreeNode` objects, and links them via parent and children references. Once built, you can call `getMostRecentCommonAncestor` to find the deepest shared ancestor of any two people in the tree.
+
+<Note>
+  The main method includes a built-in example that finds the most recent common ancestor of **Bilbo** and **Frodo** from a Tolkien-style family tree file.
+</Note>
+
+## Project structure
+
+```
+src/
+└── trees/
+    ├── FamilyTree.java     — Main class with tree construction and MRCA logic
+    └── TreeException.java  — Custom exception for malformed input and missing names
+```

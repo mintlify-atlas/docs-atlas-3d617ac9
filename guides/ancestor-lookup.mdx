@@ -1,0 +1,106 @@
+---
+title: "Ancestor lookup"
+description: "Finding the most recent common ancestor of two individuals"
+---
+
+The most recent common ancestor (MRCA) of two individuals is the deepest node in the tree that is an ancestor of both. "Deepest" means furthest from the root — the most specific shared ancestor.
+
+<Info>
+  Depth is measured from the root: the root is at depth 0, its children are at depth 1, and so on. A deeper ancestor is a more specific (closer) shared relative.
+</Info>
+
+## Algorithm
+
+`getMostRecentCommonAncestor` finds the MRCA by collecting the ancestor lists of both individuals and returning the first ancestor of the first individual that also appears in the second individual's ancestor list.
+
+```java
+TreeNode getMostRecentCommonAncestor(String name1, String name2) throws TreeException {
+    TreeNode node1 = root.getNodeWithName(name1);
+    if (node1 == null)
+        throw new TreeException("Name1 doesn't exist");
+    TreeNode node2 = root.getNodeWithName(name2);
+    if (node2 == null)
+        throw new TreeException("Name 2 doesn't exist");
+    ArrayList<TreeNode> ancestorsOf1 = node1.collectAncestorsToList();
+    ArrayList<TreeNode> ancestorsOf2 = node2.collectAncestorsToList();
+    for (TreeNode n1: ancestorsOf1) {
+        if (ancestorsOf2.contains(n1))
+            return n1;
+    }
+    return null;
+}
+```
+
+Because `collectAncestorsToList` orders ancestors from most recent to most ancient, the first match found in the loop is guaranteed to be the most recent common ancestor.
+
+## Step-by-step walkthrough
+
+<Steps>
+  <Step title="Locate node1">
+    Call `root.getNodeWithName(name1)` to find the first individual. If the name does not exist in the tree, throw `TreeException("Name1 doesn't exist")`.
+  </Step>
+  <Step title="Locate node2">
+    Call `root.getNodeWithName(name2)` to find the second individual. If the name does not exist in the tree, throw `TreeException("Name 2 doesn't exist")`.
+  </Step>
+  <Step title="Collect ancestors of node1">
+    Call `node1.collectAncestorsToList()`. This returns a list ordered from node1's immediate parent up to the root.
+  </Step>
+  <Step title="Collect ancestors of node2">
+    Call `node2.collectAncestorsToList()`. Same ordering — most recent ancestor first.
+  </Step>
+  <Step title="Find the first common ancestor">
+    Iterate through `ancestorsOf1` in order. Return the first element that is also present in `ancestorsOf2`. Because the list is ordered recent-to-ancient, the first match is the most recent common ancestor.
+  </Step>
+  <Step title="Handle the no-match case">
+    If the loop completes without finding a match, return `null`. This means the two individuals share no common ancestor (they are in disconnected subtrees, which is not possible in a single-root tree but is handled defensively).
+  </Step>
+</Steps>
+
+## Concrete example
+
+Using the Tolkien tree from the [input file format](/guides/data-format) guide:
+
+```text
+Thror
+  Thrain
+    Thorin
+      Fili
+      Kili
+    Frerin
+    Dis
+      Bilbo
+        Frodo
+```
+
+**MRCA of Bilbo and Frodo:**
+
+- `ancestorsOf1` (Bilbo's ancestors) = `[Dis, Thrain, Thror]`
+- `ancestorsOf2` (Frodo's ancestors) = `[Bilbo, Dis, Thrain, Thror]`
+- Iterate `ancestorsOf1`: first element is `Dis`. Is `Dis` in `ancestorsOf2`? Yes.
+- Result: `Dis`
+
+Expected output:
+
+```text
+Most recent common ancestor of Bilbo and Frodo is Dis
+```
+
+Note that although Frodo is a *descendant* of Bilbo, Bilbo is not in Bilbo's own ancestor list (the list starts at the parent, not the node itself). So the MRCA is Dis — Bilbo's parent and Frodo's grandparent.
+
+## Error handling
+
+| Situation | Behavior |
+|---|---|
+| Either name not found in the tree | Throws `TreeException` |
+| No common ancestor exists | Returns `null` |
+
+<Warning>
+  If `getMostRecentCommonAncestor` returns `null`, calling `.getName()` on the result will throw a `NullPointerException`. Always check whether the returned node is `null` before using it:
+
+  ```java
+  TreeNode mrca = tree.getMostRecentCommonAncestor(name1, name2);
+  if (mrca != null) {
+      System.out.println(mrca.getName());
+  }
+  ```
+</Warning>

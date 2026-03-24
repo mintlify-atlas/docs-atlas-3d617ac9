@@ -1,0 +1,91 @@
+---
+title: "Tree operations"
+description: "How nodes are built, linked, and traversed in the family tree"
+---
+
+The family tree is built from `TreeNode` objects. Each node stores its name, a reference to its parent, and a list of its children.
+
+<Info>
+  `TreeNode` is a private static inner class of `FamilyTree`. It is not accessible from outside the `FamilyTree` class.
+</Info>
+
+## The TreeNode class
+
+Each node has three fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | `String` | The person's name |
+| `parent` | `TreeNode` | Reference to the parent node (`null` for the root) |
+| `children` | `ArrayList<TreeNode>` | Ordered list of child nodes |
+
+## addChild
+
+`addChild` links a new child node to this node. It appends the child to the children list and sets the child's `parent` back-pointer to this node.
+
+```java
+void addChild(TreeNode childNode) {
+    children.add(childNode);
+    childNode.parent = this;
+}
+```
+
+Setting `childNode.parent = this` is what makes ancestor traversal possible later — each node always knows who its parent is.
+
+## getNodeWithName
+
+`getNodeWithName` performs a depth-first search for a node by name, starting from the node it is called on.
+
+```java
+TreeNode getNodeWithName(String targetName) {
+    if (this.getName().equals(targetName))
+        return this;
+    for (TreeNode child: children) {
+        if (child.getNodeWithName(targetName) != null)
+            return child;
+    }
+    return null;
+}
+```
+
+The method checks the current node first. If the name does not match, it recurses into each child's subtree in order. If no match is found anywhere, it returns `null`.
+
+## collectAncestorsToList
+
+`collectAncestorsToList` walks up the parent chain from the current node to the root, collecting each ancestor along the way.
+
+```java
+ArrayList<TreeNode> collectAncestorsToList() {
+    ArrayList<TreeNode> ancestors = new ArrayList<>();
+    TreeNode curr = this;
+    while (curr.parent != null) {
+        ancestors.add(curr.parent);
+        curr = curr.parent;
+    }
+    return ancestors;
+}
+```
+
+This works like traversing a linked list upward. The result is ordered from the most recent ancestor (immediate parent) to the most ancient (root). The node itself is not included — only its ancestors.
+
+## toString and toStringWithIndent
+
+`toString` delegates to `toStringWithIndent("")`, which builds the tree as a string recursively. Each depth level is indented by 2 additional spaces:
+
+```text
+Thror
+  Thrain
+    Thorin
+      Fili
+      Kili
+```
+
+Each recursive call passes `indent + 2` to children, so indentation grows automatically with depth.
+
+<AccordionGroup>
+  <Accordion title="Why use a back-pointer (parent reference)?">
+    Storing a `parent` reference on each node makes ancestor collection an O(depth) operation. Without it, you would need to re-traverse the entire tree from the root to discover the path to any given node — an O(n) search for each ancestor query.
+
+    With the back-pointer, `collectAncestorsToList` simply walks the chain of `parent` references directly upward from the target node, with no tree traversal required.
+  </Accordion>
+</AccordionGroup>

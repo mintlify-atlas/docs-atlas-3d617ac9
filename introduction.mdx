@@ -1,0 +1,83 @@
+---
+title: "Introduction"
+description: "Overview of the Lab 12 Family Tree Java project"
+---
+
+## What this project is
+
+Lab 12 is a Java assignment that implements a **family tree** data structure. It demonstrates core computer science concepts — tree construction, recursive traversal, and linked node relationships — through the concrete domain of genealogy.
+
+The program reads a structured `.txt` file describing parent-child relationships, builds an in-memory tree of `TreeNode` objects, and exposes methods to query ancestry. The primary query is **most recent common ancestor (MRCA)**: given two names in the tree, find the deepest ancestor they share.
+
+<Info>
+  This is a CS lab assignment. Its purpose is to practice tree data structures, recursion, and exception-driven error handling in Java — not to serve as a production genealogy tool.
+</Info>
+
+## The problem it solves
+
+Genealogical data is inherently hierarchical. A flat list cannot express the relationship "Bilbo is a descendant of Thror through Thrain and Dis." A tree can.
+
+The two core problems this project addresses are:
+
+1. **Representing relationships** — storing parent-child links so that any node can be reached from the root and any ancestor chain can be walked upward.
+2. **Computing shared ancestry** — given any two individuals in the tree, determine which ancestor they have in common and how recent that ancestor is.
+
+## How data flows through the program
+
+The pipeline from file to answer has four stages:
+
+| Stage | What happens |
+|---|---|
+| **Input** | A `.txt` file with lines of the form `parent:child1,child2,...` |
+| **Parse** | `FamilyTree.addLine()` splits each line on `:` and `,`, creates `TreeNode` objects |
+| **Build** | Nodes are linked into a single in-memory tree by setting parent and child references |
+| **Query** | `getMostRecentCommonAncestor()` walks ancestor chains and returns the first shared node |
+
+A Swing `JFileChooser` dialog handles file selection at startup, so no command-line argument is needed.
+
+<Note>
+  If the input file is malformed — a missing `:` separator or a reference to an unknown parent — `addLine` throws a `TreeException` with a descriptive message.
+</Note>
+
+## Java classes
+
+### `FamilyTree`
+
+The main class in package `trees`. Responsibilities:
+
+- Opens a file chooser dialog (filtered to `.txt` files) and reads the chosen file line by line.
+- Calls `addLine(String line)` for each line to parse and link nodes.
+- Provides `getMostRecentCommonAncestor(String name1, String name2)` to find shared ancestry.
+- Provides `toString()` to render the full tree as an indented string.
+- Contains `main`, which constructs the tree and prints the MRCA of `"Bilbo"` and `"Frodo"`.
+
+### `TreeException`
+
+A checked exception that extends `Exception`. It carries a single `String` message describing what went wrong. It is thrown in three situations:
+
+- A line passed to `addLine` is missing the `:` separator (`"Improper formatting"`).
+- A non-root line's parent name is not found anywhere in the existing tree (`"error"`).
+- Either name passed to `getMostRecentCommonAncestor` does not exist in the tree.
+
+## Explore the documentation
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Compile and run the program in minutes
+  </Card>
+  <Card title="Data format" icon="file-lines" href="/guides/data-format">
+    Learn the input file syntax
+  </Card>
+  <Card title="Tree operations" icon="sitemap" href="/guides/tree-operations">
+    Understand how nodes are built and linked
+  </Card>
+  <Card title="Ancestor lookup" icon="magnifying-glass" href="/guides/ancestor-lookup">
+    Find the most recent common ancestor of two people
+  </Card>
+  <Card title="FamilyTree API" icon="code" href="/api/family-tree">
+    Constructor, methods, and exceptions
+  </Card>
+  <Card title="TreeException API" icon="triangle-exclamation" href="/api/tree-exception">
+    Custom exception reference
+  </Card>
+</CardGroup>
